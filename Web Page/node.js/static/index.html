@@ -1,0 +1,904 @@
+
+<!DOCTYPE HTML><html lang="ko">
+    <head>
+        <title>PS1060/30 Application App</title>
+        <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+            body { background-color: lightblue; }
+
+            tr td{ text-align: center; }
+
+            input[type=checkbox] {
+            	display: none;          // default check display off
+            }
+
+            input[type=checkbox] + .D4 {
+                display: inline-block;
+                position: relative;
+                padding: 8px;
+                background-color: gray;
+                border: 1px dotted #1E441E;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            input[type=checkbox]:checked + .D4:after {
+                position: absolute;
+                left: 10px;
+                top: 2px;
+                color: #fff; 
+                content: '\2714'; 
+            }
+
+
+            input[type=checkbox] + .D0 {
+                display: inline-block;
+                position: relative;
+                padding: 8px;
+                background-color: #A7D8A7;
+                border: 1px dotted #1E441E;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+
+            input[type=checkbox]:checked + .D0 {
+                background-color: #5CB85C;
+            }
+
+            input[type=checkbox]:disabled + .D0 {
+                background-color: #F5F5F5;
+            }
+
+            input[type=checkbox]:checked + .D0:after {
+                position: absolute;
+                left: 10px;
+                top: 2px;
+                color: #fff; 
+                content: '\2714'; 
+            }
+
+            input[type=checkbox]:checked + .D2:after {
+                font-size: 18px;
+            }
+
+            input[type=checkbox] + .D3 {
+                font-size: 10px;
+            }
+
+            input[type=checkbox]:checked + .D3:after {
+                left: 4px;
+                top: 0px;
+                font-size: 10px;
+            }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+			}
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 40px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 3px;
+                padding: 1px 0;
+
+                /* Position the tooltip */
+                position: absolute;
+                z-index: 1;
+
+                bottom: 100%;
+                left: 50%;
+                margin-left: -20px;
+                transition: opacity 2s;
+			}
+			.tooltip:hover .tooltiptext {
+                visibility: visible;
+            }
+            .tooltip .tooltiptext::after {
+            	content: "";
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -3px;
+                border-style: solid;
+                border-color: #555 transparent transparent transparent;
+            }
+
+
+            .select3 {
+                border-radius: 5px;
+            }
+            .select-editable {position:relative; background-color:white; border:solid grey 1px; width:300px; height:18px;}
+            .select-editable select {position:absolute; top:0px; left:0px; font-size:12px; border:none; width:300px; margin:0;}
+            .select-editable input {position:absolute; top:0px; left:0px; width:260px; padding:1px; font-size:12px; border:none;}
+            .select-editable select:focus,
+            .select-editable input:focus {outline:none;}
+        </style>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    </head>
+
+    <body>
+        <center>
+        <!--
+        <script src="/jquery-3.4.1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <form action="/serial_connect" method="GET">
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        <strong><label for="port_select">COM PORT</label></strong>
+        <select id="port_select" class="select1" name="PORT" style='background-color: powderblue;'>
+            <option value="">Press Button</option>
+        </select>
+        <input type="button" id="portScan" class="button1" value="Scan"></input>
+        &nbsp; &nbsp;
+        <input type="hidden" id="com_status" name="com_status" value="0">
+        <strong><label for="baudrate_select">Baud-Rate</label></strong>
+        <select name="BAUDRATE" class="select2" id="baudrate_select" style='background-color: powderblue;'>
+            <option value="9600">9600</option>
+            <option value="19200">19200</option>
+            <option value="38400">38400</option>
+            <option value="57600" selected="selected">57600</option>
+            <option value="115200">115200</option>
+        </select>
+        <input type="submit" class="button2" value="Connect" id="port_connect" onclick="check_connect()"/>
+        </form>
+        -->
+
+        <form>
+        <h3>Device : 
+        <select id="deviceSelect" name="DEVICE" class="select3" style='background-color:#7FFF00'>
+            <option class="Device" value="0" name="PS1030" style='background-color:#8B008B'>PS1030</option>
+            <option class="Device" value="1" name="PS1060" style='background-color:#7FFF00' selected>PS1060</option>
+            <option class="Device" value="2" name="PS1120" style='background-color:#A9A9A9' disabled>PS1120</option>
+            <option class="Device" value="4" name="NoDevice" style='background-color:#8B008B' disabled>No Device</option>
+        </select>
+        Group Type :
+        <select id="groupSelect" name="GROUP" class="select3" style='background-color:#7FFF00'>
+            <option class="Group" value="4" style='background-color:#A9A9A9'>4-Group</option>
+            <option class="Group" value="6" style='background-color:#7FFF00'>6-Group</option>
+            <option class="Group" value="8" style='background-color:#8B008B'>8-Group</option>
+            <option class="Group" value="10" style='background-color:#9932CC' selected>10-Group</option>
+            <option class="Group" value="12" style='background-color:#EFAE00'>12-Group</option>
+            <option class="Group" value="16" style='background-color:#90EE90'>16-Group</option>
+        </select>
+        </h3>
+        <h4>Operation : 
+        <select id="id-cmd" name="COMMAND" class="select3" style='background-color:#7FFF00'>
+            <option class="switchOff" value="0" style='background-color:#A9A9A9'>SWITCH OFF</option>
+            <option class="switchOn" value="1" style='background-color:#7FFF00' selected>SWITCH ON</option>
+            <option class="holdOff" value="2" style='background-color:#8B008B'>HOLD OFF</option>
+            <option class="holdOn" value="3" style='background-color:#9932CC'>HOLD ON</option>
+            <option class="releaseOff" value="4" style='background-color:#EFAE00'>RELEASE OFF</option>
+            <option class="releaseOn" value="5" style='background-color:#F0E68C'>RELEASE ON</option>
+            <option class="forceOff" value="6" style='background-color:#98FB98'>FORCE OFF</option>
+            <option class="forceOn" value="7" style='background-color:#90EE90'>FORCE ON</option>
+        </select>
+        <input type="button" id="CommandGen" value="Command Generate">
+        <!--
+        <input type="button" id="SendCommand" value="Send" disabled="disabled">
+        -->
+        <input type="button" id="SendCommand" value="Send">
+        </h4>
+        </form>
+
+        <div id='RowColumn'></div></br>
+        <div id='container'></div>
+
+        <br>
+        <!-- 원래 사용하던 것
+        <label for="frame"><b>Frame : </b></label>
+        <select id="frame" name="frameName" style="width:300px"></select>
+        -->
+        <label for="frame" style="vertical-align:top"><b>Frame : </b></label>
+        <div class="select-editable" style="display:inline-block">
+            <select id="frame" name="frameName" style="width:300px"></select>
+            <input type="text" id="frameName" onkeypress="myFunction(event)" value=""/>
+        </div>
+        <!--
+        <input list="commands" name="command">
+        <datalist id="commands">
+            <option value="0xAA 0x11 0x22 0x33">
+            <option value="0xAA 0x11 0x22 0x33">
+            <option value="0xAA 0x11 0x22 0x33">
+            <option value="0xAA 0x11 0x22 0x33">
+        </datalist>
+        <br>
+        <label for="Step">Test</label><input type="number" id="Step" min="0" max="10" step="1" value="0"/>
+        <br>
+        -->
+        <!--
+        <textarea id="console" cols="80" rows="10" style="display:block; resize:none"></textarea>
+        -->
+        <textarea id="console" cols="80" rows="10" style="display:none; resize:none"></textarea>
+        </center>
+
+
+
+
+        <script language="javascript">
+            var CurrentSwitch = new Array(120);
+            const SwitchText = ["OFF", "ON"];
+            const SwitchColor = ["blue", "red", "gray", "darkred"];
+            const cGroupType = [4, 6, 8, 10, 12, 16];
+            const groupIdx = [0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 5];
+            const color = ['#A9A9A9', '#7FFF00', '#8B008B', '#9932CC', '#EFAE00', '#F0E68C', '#98FB98', '#90EE90'];
+            var totalSwitch = 60;        // total switch 개수.
+            var deviceIdx;      // device number : PS1030(0), PS1060(1), PS1120(2)
+            var groupType;      // group type : 4, 6, 8, 10, 12, 16
+            var IamSender = false;
+
+            $(function() {
+                deviceIdx = parseInt(getCookieValue('device'));
+                if( isNaN(deviceIdx) ) deviceIdx = 1;
+                $('#deviceSelect').val(String(deviceIdx));
+//                deviceIdx = $('#deviceSelect').val();
+
+                groupType = parseInt(getCookieValue('group'));
+                if( isNaN(groupType) ) groupType = 10;
+                $('#groupSelect').val(String(groupType));
+//                groupType = $('#groupSelect').val();
+
+                totalSwitch = (2 ** deviceIdx) * 30;
+
+                dbgout(`device index = ${deviceIdx}, group type = ${groupType}, total switch = ${totalSwitch}\n`);
+
+                create_group_map();
+                create_rowcolumn();
+
+//                InitCommand();
+
+                CurrentSwitch.fill(0x0);
+
+                initWebSocket();
+            });
+
+            /****************************************************************
+             * Web Socket Code.
+             *  - web socket에서는 보드에 대한 현재 상황만 받는다.
+             *    + Server에서는 Connection이 설정되면, 현재 보드 상태를 전송한다.
+             *    + Switch 제어 명령이 실행되면, 결과를 모든 client에 전송한다.
+             *  - 보드(Switch)의 동작 제어는 web server(http) 프로토콜을 사용한다.
+             */
+            var gateway = `ws://${window.location.hostname}:9988/ws`;
+            var websocket;
+            function initWebSocket() {
+                console.log('WebSocket connetion ...');
+                websocket = new WebSocket(gateway);
+                websocket.open = onOpen;
+                websocket.onclose = onClose;
+                websocket.onmessage = onMessage;    // message 수신.
+                websocket.binaryType = "blob";
+            }
+            function onOpen(event) {
+                console.log('Connection opened');
+                websocket.send('hi');
+            }
+            function onClose(event) {
+                console.log('Connection closed');
+                setTimeout(initWebSocket, 2000);
+            }
+            function onClose(event) {
+                console.log(`event.data = ${event.data}\n`);
+                dbgout(event.data);
+            }
+            function onMessage(event) {
+                console.log(`event.data = ${JSON.stringify(event.data)}\n`);
+                dbgout(`event.data = ${JSON.stringify(event.data)}\n`);
+//                console.log("Result: " + event.data);
+//                dbgout('WebSocket Rx message : ' + event.data);
+
+                var words = event.data.split(',');
+                var bytes = [];
+                words.forEach(word => bytes.push(parseInt(word)));
+                dbgout(`length = ${words.length}\n`);
+                dbgout(`bytes = ${bytes}\n`);
+//                bytes.forEach(b => dbgout(`${b}\n`));
+
+                bytes.forEach(function(val, idx) {
+                    if( idx == 0 ) {
+                        dbgout(`val = ${val}, type = ${typeof(val)}\n`);
+                        let AD = (val & 0x08) ? "Enable" : "Disable";
+                        let addr = (val & 0x70) >> 4;
+                        deviceIdx = (val & 0x80) ? 1 : 0;
+                        groupType = cGroupType[val & 0x7];
+                        dbgout(`CurrentChip = 0x${val.toString(16)}, Chip Address = ${addr}, Active Discharge ${AD}\n`);
+                        dbgout(`groupType = ${groupType}\n`);
+                        $('#deviceSelect').val(String(deviceIdx));
+                        $('#groupSelect').val(String(groupType));
+                        if( IamSender == true ) {
+                            IamSender = false;
+                            return;
+                        }
+                        create_rowcolumn();
+                    } else {
+                        dbgout(`val = ${val}, type = ${typeof(val)}\n`);
+                        $('#dut'+String(idx-1)).text(SwitchText[val & 0x1]).css("color", SwitchColor[val]);
+                        CurrentSwitch[idx - 1] = val;
+                    }
+                });
+                /*
+                */
+            }
+
+
+
+
+
+            function send_command(str) {
+                var xhr = new XMLHttpRequest();
+                var str = 'Command?CMD=';
+                xhr.open('GET', window.location.href+str, true);
+//                dbgout(str);
+
+                xhr.send();
+                xhr.onreadystatechange = function() {
+                    if( xhr.readyState == 4 && xhr.status == 200 ) {
+                        var type = xhr.getResponseHeader("Content-Type");
+                        if( type.match(/^text/) ) {
+                        }
+                    }
+                }
+            }
+
+            function InitCommand() {
+                // pattern reset.
+                dbgout(` - Pattern Reset.\n`);
+                var str = '';
+                str = "0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF ";
+                if( deviceIdx == 1 ) str += "0xFF 0xFF 0xFF 0xFF ";
+                str += "0x00 0x00 0x00 0x00";
+                send_command(str);
+
+                dbgout(` - Chip ID Assignment.\n`);
+                send_command(`0xAA 0x37 0xFF 0x00 0x00`);        // Chip ID Assignment.
+                dbgout(` - 10 Group Select.\n`);
+                var s;
+                for(s=0; s<6; s++) {
+                    if( groupType == cGroupType[s] ) break;
+                }
+                send_command(`0xAA 0x31 0x${(s<<5).toString(16)} 0x00 0x00`);        // set Group Type(10).
+            }
+
+            const getCookieValue = (key) => {
+                let cookieKey = key + '=';
+                let result = '';
+                const cookieArr = document.cookie.split(';');
+
+//                dbgout(cookieArr);
+                for(let i=0; i<cookieArr.length; i++) {
+                    if( cookieArr[i][0] == ' ') {
+                        cookieArr[i] = cookieArr[i].substring(1);
+                    }
+
+                    if( cookieArr[i].indexOf(cookieKey) === 0 ) {
+                        result = cookieArr[i].slice(cookieKey.length, cookieArr[i].length);
+//                        dbgout(result);
+                        return result;
+                    }
+                }
+                return result;
+            }
+
+            /*
+            var wSocket;
+            function WebSocket_Test() {
+                // websocket test.
+                wSocket = new WebSocket(window.location.href);
+                wSocket.onopen = function(e) {onOpen(e) };
+                wSocket.onclose = function(e) {onClose(e) };
+                wSocket.onmessage = function(e) {onMessage(e) };
+                wSocket.onerror = function(e) {onError(e) };
+            }
+
+
+            function onOpen(e) {
+                dbgout('WebSocket opened!\n');
+                wSocket.send("Client message!");
+            }
+
+            function onClose(e) {
+                dbgout('WebSocket closed!\n');
+            }
+
+            function onMessage(e) {
+                dbgout('WebSocket Rx message : ' + e.data);
+            }
+
+            function onError(e) {
+                dbgout('WebSocket Error message : ' + e.data);
+            }
+            */
+
+            function create_rowcolumn() {
+                var nRow = groupType;
+                var nColumn = Math.ceil(totalSwitch / nRow);
+                var max_column = (nRow > nColumn) ? nRow : nColumn;
+                var container = $("#RowColumn");
+                var cell;
+
+//                dbgout(`totalSwitch = ${totalSwitch}, groupType = ${groupType}\n`);
+//                dbgout(`nRow = ${nRow}, nColumn = ${nColumn}\n`);
+
+                container.empty();         // 기존 SVG 내용을 비운다.
+
+                table = $('<table></table>').css({ border: '1px solid #92ACBB' });
+                // first line
+                var row = $('<tr></tr>');
+                for(var c=0; c<(max_column+1); c++) {
+                    if( c == 0 ) cell = $('<td id="debug"></td>').html(' ');
+                    else cell = $('<th></th>').append($('<label></label>').html(String(c-1)))
+                    row.append(cell)
+                }
+                table.append(row)
+
+                // second line
+                row = $('<tr></tr>');
+                for(var r=0; r<(nRow+1); r++) {
+                    cell = $('<th></th>');
+                    if( r == 0 ) {
+                        cell.append($('<label></label>').html('nRow'))
+                    } else {
+                        cell.append(
+                            $('<div></div>').append(
+                                $('<input>').prop({type: 'checkbox', id: 'row'+String(r-1), name: 'rows[]', value:String(r-1)})
+                            ).append(
+                                $('<label></label>').prop({for: 'row'+String(r-1), class: 'D0 D3'})
+                            )
+                        )
+                    }
+                    row.append(cell)
+                }
+                table.append(row)
+
+                // third line
+                row = $('<tr></tr>');
+                for(var c=0; c<(nColumn+1); c++) {
+                    cell = $('<th></th>');
+                    if( c == 0 ) {
+                        cell.append($('<label></label>').html('nColumn'))
+                    } else {
+                        cell.append(
+                            $('<div></div>').append(
+                                $('<input>').prop({type: 'checkbox', id: 'column'+String(c-1), name: 'columns[]', value:String(c-1)})
+                            ).append(
+                                $('<label></label>').prop({for: 'column'+String(c-1), class: 'D0 D3'})
+                            )
+                        )
+                    }
+                    row.append(cell)
+                }
+                table.append(row)
+
+                container.append(table)
+            }
+
+            function create_group_map() {
+                if( deviceIdx > 2 ) return;
+
+                var container = $("#container");
+                container.empty();         // 기존 SVG 내용을 비운다.
+
+                table = $('<table></table>').css({ border: '1px solid #92ACBB' });
+                for(var r=0; r<7; r++) {
+                    row = $('<tr></tr>');
+                    for(var c=0; c<11; c++) {
+                        if( r == 0 ) {
+                            var cell = $('<th></th>');
+                            if( c == 0 ) {
+                                cell.append(
+                                    $('<div></div>').prop({class: 'tooltip'}).append(
+                                        $('<input>').prop({type: 'checkbox', id: 'all_switch_toggle'})
+                                    ).append(
+                                        $('<label></label>').prop({for: 'all_switch_toggle', class: 'D0 D3'})
+                                    ).append(
+                                        $('<span></span>').prop({class: 'tooltiptext'}).html('All Toggle')
+                                    )
+                                )
+                            } else {
+                                cell.append($('<label></label>').html(String(c-1)))
+                            }
+                        } else {
+                            if( c == 0 ) {
+                                var cell = $('<th></th>').append($('<label></label>').html(String(r-1)))
+                            } else {
+                                var num = (c - 1) + ((r - 1) * 10);
+                                if( (deviceIdx == 0) && (num >= 30) ) {
+                                    var cell = $('<td></td>').append(
+                                        $('<div></div>').prop({class: 'tooltip'}).append(
+                                            $('<input>').prop({type: 'checkbox', id: 'switch'+String(num), name:'switch[]', value:String(num), disabled:true})
+                                        ).append(
+                                            $('<label></label>').css({width:'22px', height:'16px', fontSize:'8px', color:'#00F'})
+                                                .prop({for: 'switch'+String(num), id: 'dut'+String(num), class: 'D2 D4 DutClass'}).html('NC')
+                                        )
+                                    )
+                                } else {
+                                    var cell = $('<td></td>').append(
+                                        $('<div></div>').prop({class: 'tooltip'}).append(
+                                            $('<input>').prop({type: 'checkbox', id: 'switch'+String(num), name:'switch[]', value:String(num)})
+                                        ).append(
+                                            $('<label></label>').css({width:'22px', height:'16px', fontSize:'8px', color:'#00F'})
+                                                .prop({for: 'switch'+String(num), id: 'dut'+String(num), class: 'D0 D2 DutClass'}).html('OFF')
+                                        ).append(
+                                            $('<span></span>').prop({class: 'tooltiptext'}).html(String(num))
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        row.append(cell)
+                    }
+                    table.append(row)
+                }
+                container.append(table)
+            }
+
+            function command_result() {
+                var opcode = $('#id-cmd').val();
+                $('input:checkbox[name="switch[]"]').each(function(idx, sw) {
+                    if( this.checked == false ) return;
+
+                    dbgout(`index = ${idx}, value = ${$(this).val()}\n`);
+                    if( (opcode == 0) || (opcode == 1) || (opcode == 2) || (opcode == 3) ) {
+                        if( (CurrentSwitch[idx] & (1<<1)) == 0 ) {   // Hold된 Switch가 아닌 경우.
+                            CurrentSwitch[idx] = opcode;
+                            $('#dut'+String(idx)).text(SwitchText[opcode & 0x1]).css("color", SwitchColor[opcode]);
+                        }
+                    } else if( (opcode == 4) || (opcode == 5) ) {
+                        if( (CurrentSwitch[idx] & (1<<1)) != 0 ) {   // Hold된 Switch인 경우.
+                            CurrentSwitch[idx] = opcode & 0x1;
+                            if( opcode == 4 ) {
+                                $('#dut'+String(idx)).text(SwitchText[opcode & 0x1]).css("color", 'blue');
+                            } else {
+                                $('#dut'+String(idx)).text(SwitchText[opcode & 0x1]).css("color", 'red');
+                            }
+                        }
+                    } else if( (opcode == 6) || (opcode == 7) ) {
+                        CurrentSwitch[idx] = opcode & 0x1;
+                        if( opcode == 6 ) {
+                            $('#dut'+String(idx)).text(SwitchText[opcode & 0x1]).css("color", 'blue');
+                        } else {
+                            $('#dut'+String(idx)).text(SwitchText[opcode & 0x1]).css("color", 'red');
+                        }
+                    }
+                });
+            }
+
+            function myFunction(event) {
+                var x = event.which || event.keyCode;
+
+                if( x == 13 ) {
+                    $('#frame').prepend($(`<option selected>`+$('#frameName').val()+"</option>"));
+                }
+            }
+
+            function toHexString(bytes) {
+                var str = '';
+                bytes.forEach(function(byte) {
+                    str += '0x' + ('0' + (byte & 0xFF).toString(16)).toUpperCase().slice(-2) + ' ';
+                });
+                return str;
+            }
+
+            function create_command(cmd, select) {
+//                dbgout(`command = ${cmd}, select = ${select}\n`);
+                var Bytes = [];
+
+                Bytes.push(0xAA);
+                Bytes.push(cmd);
+                if( select != null ) select.forEach(byte => Bytes.push(byte));
+                Bytes.push(0x0);
+                Bytes.push(0x0);
+
+//                var str = toHexString(Bytes);
+
+                /* option editable.
+                */
+                $('#frame').prepend($(`<option selected>`+toHexString(Bytes)+"</option>"));
+                $('#frameName').val(toHexString(Bytes));
+//                dbgout(`\nCommand(${Bytes.length}) : `+str);
+            }
+
+            function SetBitCount(v) {
+                var cnt = 0;
+
+                do {
+                    cnt += v & 0x1;
+                    v >>= 1;
+                } while( v );
+
+                return cnt;
+            }
+
+            function generate_command(opcode) {
+                var SwitchNumber = [];//new Uint8Array();
+                var select = [];
+                var cmd = opcode & 0x07;
+                var nSelect;
+
+                var Rows = 0;
+                var Columns = 0;
+                var nRow = groupType;
+                var nColumn = Math.ceil(totalSwitch / nRow);
+
+//                dbgout(`Row = ${nRow}, Column = ${nColumn}\n`);
+                // check switch select.
+                $('input:checkbox[name="switch[]"]').each(function(idx, sw) {
+                    if( this.checked == true ) {
+                        SwitchNumber.push(Number(this.value));
+                        Rows |= (1 << (nRow - ((idx % nRow)+1)));
+                        Columns |= (1 << (nColumn - (parseInt(idx / nRow)+1)));
+                    }
+                });
+                nSelect = SwitchNumber.length;
+//                dbgout(`Switch Select(${SwitchNumber.length}) : ${SwitchNumber}\n`);
+//                dbgout(`opcode = 0x${opcode.toString(16)}, switch count = ${nSelect}\n`);
+//                dbgout(`Row Select = 0x${Rows.toString(16)}, Column Select = 0x${Columns.toString(16)}\n`);
+
+                if( SwitchNumber.length == 0 ) return;
+
+                if( nSelect == totalSwitch ) {          // all switch select -> single command.
+                    cmd |= 0x00;
+                } else if( nSelect == 1 ) {     // single switch select -> single switch command.
+                    cmd |= 0x08;
+                    select.push(SwitchNumber[0]);
+                } else {
+                    var cRow = SetBitCount(Rows);          // row select bit count.
+                    var cColumn = SetBitCount(Columns);    // column select bit count.
+//                    dbgout(`Row Bits = ${cRow}, Column Bits = ${cColumn}\n`);
+
+                    // switch들이  row/column으로 맞아떨어지지 않는 경우에는 Row/Column All Switch Command가 적용되지 않는다.
+                    if( (cRow * cColumn) == nSelect ) { // 선택된 Switch개수가 cRow x cColumn와 같은 경우.
+                        if( cColumn == nColumn ) {             // Row All Switch Command.
+                            cmd |= 0x10;
+                            if( nRow > 8 ) {
+                                select.push((Rows >> (nRow - 8)) & 0xFF);
+                                select.push((Rows << (16 - nRow)) & 0xFF);
+                            } else {
+                                select.push((Rows << (8 - nRow)) & 0xFF);
+                            }
+                        } else if( cRow == nRow ) {         // Column All Switch Command.
+                            cmd |= 0x20;
+                            if( nColumn > 8 ) {
+                                select.push((Columns >> (nColumn - 8)) & 0xFF);
+                                select.push((Columns << (16 - nColumn)) & 0xFF);
+                            } else {
+                                select.push((Columns << (8 - nColumn)) & 0xFF);
+                            }
+                        } else {                                // Row or Column Each Switch Command.
+                            cmd |= 0x18;                        // Row Each Switch Command.
+//                            cmd |= 0x28;                        // Column Each Switch Command.
+                            if( nRow < 8 ) {                // 4/6 group.
+                                select.push(((Rows << (8 - nRow)) & 0xFF) | (Columns >> ((nRow + nColumn) - 8) & 0xFF));
+                                select.push(((Columns >> (16 - (nRow + nColumn))) & 0xFF));
+                                if( (nRow + nColumn) > 16 ) {
+                                    select.push(((Columns << (24 - (nRow + nColumn))) & 0xFF));
+                                }
+                            } else if( nRow == 8 ) {        // 8 group
+                                select.push(Rows & 0xFF);
+                                select.push((Columns << (8 - nColumn)) & 0xFF);
+                            } else if( nRow == 16 ) {        // 16 group
+                                select.push((Rows >> 8) & 0xFF);
+                                select.push(Rows & 0xFF);
+                                select.push((Columns << (8 - nColumn)) & 0xFF);
+                            } else {                        // 10/12 group
+                                select.push(((Rows >> (nRow - 8)) & 0xFF));
+                                if( (nRow + nColumn) > 16 ) {          // PS1060 : 12-group
+                                    select.push(Rows & 0xFF);
+                                    select.push((Columns << (8 - nColumn)) & 0xFF);
+                                } else {                    // 10/12 group
+                                    select.push( ((Rows << (16 - nRow)) & 0xFF) | ((Columns << (16 - (nRow + nColumn))) & 0xFF) );
+                                }
+                            }
+                        }
+                    } else {                    // Each Switch Select Command.
+                        cmd |= 0x38;                // Select Switch Command.
+                        for(var i=0; i<Math.ceil(totalSwitch / 8); i++) select.push(0x0);
+                        $('input:checkbox[name="switch[]"]').each(function(idx, sw) {
+                            if( this.checked == true ) {
+//                                dbgout(`idx = ${idx}, value = ${$(this).val()}\n`);
+                                set_bit(select, idx);
+                            }
+                        });
+                    }
+                    // display select.
+//                    dbgout(`select : `); select.forEach( byte => dbgout(`0x${byte.toString(16)} `) ); dbgout('\n');
+                }
+                create_command(cmd, select);
+            }
+
+
+            $('#groupSelect').on("change", function() {
+                groupType = parseInt($(this).val());
+//                deviceIdx = parseInt($('#deviceSelect').val());
+//                totalSwitch = (2 ** deviceIdx) * 30;
+//                dbgout(`totalSwitch = ${totalSwitch}, groupType = ${groupType}, deviceIdx = ${deviceIdx}\n`);
+
+                // row/column checkbox를 다시 생성한다.
+                create_rowcolumn();
+
+                // 모든 Switch 선택을 해제한다.
+                $('input:checkbox[name="switch[]"]').each(function() {
+                    this.checked = false;
+                });
+
+                var xhr = new XMLHttpRequest();
+                var str = 'Command?CMD=';
+                str += `0xAA 0x31 0x${(groupIdx[groupType] << 5).toString(16)} 0x00 0x00`;
+                xhr.open('GET', window.location.href+str, true);
+                xhr.send();
+                xhr.onreadystatechange = function() {
+                    if( xhr.readyState == 4 && xhr.status == 200 ) {
+//                        var type = xhr.getResponseHeader("Content-Type");
+                    }
+                }
+            });
+
+
+            $(document).on('click', '#SendCommand', function() {
+//                dbgout("SendCommand main event\n");
+                var xhr = new XMLHttpRequest();
+                var str = 'Command?CMD=';
+//                str += $('#frame option:selected').val().split(' ').map(Number);
+//                str += $('#frame option:selected').val();
+                str += $('#frameName').val();        // hex string.
+//                dbgout(str);
+                xhr.open('GET', window.location.href+str, true);
+
+                xhr.send();
+                xhr.onreadystatechange = function() {
+                    // operation complete.( https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState )
+                    if( xhr.readyState == 4 ) {
+//                        dbgout(`status = ${xhr.readyState}, ${xhr.status}\n`);
+                        if( xhr.status == 200 ) {
+                            var type = xhr.getResponseHeader("Content-Type");
+                            if( type.match(/^text/) ) { }
+                        } else if( xhr.status == 204 ) {
+//                            command_result();
+                        }
+                    }
+                }
+            });
+
+            $(document).on("click", 'input[name="rows[]"]', function() {
+//                dbgout(`row select : ${$(this).val()} ${this.checked}\n`);
+                var checked = this.checked;
+                var row = Number($(this).val());
+                var group = Number($('#groupSelect').val());
+                var nRow = Number($('#groupSelect').val());
+                var nColumn = Math.ceil(totalSwitch / nRow);
+                var offset = (nRow * nColumn) - totalSwitch;
+
+                var remainder = (group - row - 1);
+//                dbgout(`row = ${row}, group = ${group}, remainder = ${remainder}\n`);
+//                dbgout(`nRow = ${nRow}, nColumn = ${nColumn}, offset = ${offset}\n`);
+                $('input:checkbox[name="switch[]"]').each(function() {
+//                    dbgout(`${this.value} `);
+                    if( this.value < totalSwitch ) {
+                        if( parseInt(Number(this.value) % group) == remainder ) {
+                            this.checked = checked;
+                        }
+                    }
+                });
+            });
+
+            $(document).on("click", 'input[name="columns[]"]', function() {
+                var checked = this.checked;
+                var column = Number($(this).val());
+                var group = Number($('#groupSelect').val());
+                var nColumn = Math.ceil(totalSwitch / group);
+                var offset = (nColumn - (column + 1));
+//                dbgout(`nRow = ${nRow}, nColumn = ${nColumn}, offset = ${offset}\n`);
+                $('input:checkbox[name="switch[]"]').each(function() {
+//                    dbgout(`${typeof(this.value)} `);
+                    if( this.value < totalSwitch ) {
+                        if( parseInt( Number(this.value)/group) == offset ) {
+                            this.checked = checked;
+                        }
+                    }
+                });
+            });
+
+            $('#deviceSelect').on("change", function() {
+//                dbgout(`device select = ${$(this).val()}, ${$(this).find('option:selected').attr('name')}\n`);
+                var name = $(this).find('option:selected').attr('name');
+
+                deviceIdx = parseInt($(this).val());
+                groupType = parseInt($('#groupSelect').val());
+                totalSwitch = (2 ** deviceIdx) * 30;
+
+                if( deviceIdx == 2 ) {          // PS1120
+                    dbgout('fixed 10-group\n');
+                    // 10-Group fix.
+                    $('#groupSelect').val('10');                // 10-Group을 select로 선택한다.
+                    $('#groupSelect option').prop('disabled', true);            // groupSelect select의 모든 option을 disabled로 설정한다.
+                    $('#groupSelect option[value*="10"]').prop('disabled', false);  // groupSelect select에서 value가 '10'인 option만 enable시킨다.
+                } else {
+                    $('#groupSelect option').prop('disabled', false);       // groupSelect select의 모든 option을 enable시킨다.
+                }
+
+                create_group_map();
+                create_rowcolumn();
+            });
+
+            $(window).on('beforeunload', function() {               // Page Reload event
+//                if( (SubWindow != undefined) || !isNaN(SubWindow) )
+//                    SubWindow.close();
+                dbgout('It is going to be refreshed');
+            });
+
+            $(document).on('change', '#id-cmd', function(e) {
+                // device select box에서 option선택시에 background-color를 바꾸어 준다.
+                $('#id-cmd').css("background-color", color[e.target.value]);
+            });
+
+            $(document).on('change', '#frame', function(e) {
+//                dbgout(`frame click event : ${e.type}, ${e.target.value}, ${this.checked}\n`);
+                $('#frameName').val(e.target.value);
+            });
+
+            $(document).on('click', '#frame', function(e) {
+//                dbgout(`frame click event : ${e.type}, ${e.target.value}, ${this.checked}\n`);
+                var options = $('#frame option');
+                var values = $.map(options, function(option) {
+                    return option.value;
+                });
+//                dbgout(`history : ${JSON.stringify(values)}\n`);
+            });
+
+            const BitMask = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
+            function set_bit(arr, bit) {
+//                dbgout(`bit = ${bit}, pos = ${bit >> 3}, val = ${BitMask[bit&7]}\n`);
+                arr[bit >> 3] |= BitMask[bit & 7];
+            }
+
+            $(document).on('click', '#CommandGen', function(e) {
+//                dbgout(`button click event : ${e.type}, ${e.target.value}, ${this.checked}\n`);
+                var opcode = $('#id-cmd').val();
+
+                generate_command(opcode);
+                IamSender = true;
+            });
+
+
+            $(document).on('change', '#frame', function(e) {
+                $('#frame').select();
+            });
+
+            $(document).on('click', '#all_switch_toggle', function(e) {
+//                dbgout(`all switch toggle click event : ${e.type}, ${e.target.value}, ${this.checked}\n`);
+                var checked = this.checked;
+                $('input:checkbox[name="switch[]"]').each(function() {
+//                    dbgout(`${this.value} = ${$(this).attr("disabled")}\n`);
+                    if( $(this).attr("disabled") != "disabled" ) {
+                        this.checked = checked;
+                    }
+                });
+            });
+
+            $(document).on('click', '#debug', function(e) {
+                if( $('#console').css('display') == 'none' ) {
+                    $('#console').css('display', 'block');
+                } else {
+                    $('#console').css('display', 'none');
+                }
+            });
+
+
+            $(document).on('click', '#console', function(e) {
+                $('#console').scrollTop( $('#console')[0].scrollHeight );     // 속도가 너무 느리다.
+            });
+
+            function dbgout(s) {
+                $('#console').val( $('#console').val() + s);
+//                $('#console').scrollTop( $('#console')[0].scrollHeight );     // 속도가 너무 느리다.
+            }
+
+            $('#Step').on('click', function(e) {
+                dbgout(`all switch toggle click event : ${e.type}, ${e.target.value}, ${this.checked}\n`);
+            });
+        </script>
+    </body>
+</html>
+
+
+

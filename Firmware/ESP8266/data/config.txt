@@ -1,0 +1,1 @@
+"SSID":"DS1_2G","PASS":"ds12ds!@",
